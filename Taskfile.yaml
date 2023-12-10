@@ -30,9 +30,9 @@ tasks:
           golang:{{ .GO_VERSION }} \
           {{ .COMMAND }}
 
-  compile:
+  build:
     <<: *go-docker
-    desc: Compile the application
+    desc: Build the application
     vars:
       COMMAND: go build -o bin/{{ .GIT_REPO_NAME }} *.go
 
@@ -47,6 +47,12 @@ tasks:
     desc: Format the application
     vars:
       COMMAND: go fmt ./...
+
+  check-format:
+    <<: *go-docker
+    desc: Format the application
+    vars:
+      COMMAND: bash -c 'if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then exit 1; fi'
 
   lint:
     desc: Lint the application
