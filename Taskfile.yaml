@@ -28,7 +28,7 @@ tasks:
           -e GOOS={{ .GOOS }} \
           -e GOARCH={{ .GOARCH }} \
           -v $(pwd):/app \
-          -v {{ .GO_MODULE_CACHE_VOLUME }}:/go/pkg/mod \
+          -v {{ .GO_MOD_CACHE_VOLUME }}:/go/pkg/mod \
           -w /app \
           golang:{{ .GO_VERSION }} \
           {{ .COMMAND }}
@@ -89,7 +89,7 @@ tasks:
           --rm \
           -v $(pwd):/app \
           -w /app \
-          -v {{ .GO_MODULE_CACHE_VOLUME }}:/go/pkg/mod \
+          -v {{ .GO_MOD_CACHE_VOLUME }}:/go/pkg/mod \
           golangci/golangci-lint:{{ .GOLANG_CI_LINT_VERSION }} \
           golangci-lint run -v
 
