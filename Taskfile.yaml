@@ -4,52 +4,77 @@ vars:
   GOLANG_CI_LINT_VERSION: v1.55.2
   GO_VERSION:
     sh: sed -En 's/^go (.*)$/\1/p' go.mod
-  GO_MODULE_CACHE_VOLUME: go-module-cache
+  GO_MOD_CACHE_VOLUME: go-module-cache
   GIT_REPO_NAME:
     sh: basename $(git rev-parse --show-toplevel)
 
 tasks:
-  create-go-module-cache-volume:
+  create-go-mod-cache-volume:
     internal: true
     silent: true
     desc: Create the module cache volume
     cmds:
       - |
-        docker volume create {{ .GO_MODULE_CACHE_VOLUME }} > /dev/null 2>&1
+        docker volume create {{ .GO_MOD_CACHE_VOLUME }} > /dev/null 2>&1
 
   _go-docker: &go-docker
+    internal: true
     deps:
-      - task: create-go-module-cache-volume
+      - task: create-go-mod-cache-volume
     cmds:
       - |
         docker run \
           --rm \
+          -e GOOS={{ .GOOS }} \
+          -e GOARCH={{ .GOARCH }} \
           -v $(pwd):/app \
-          -v {{ .GO_MODULE_CACHE_VOLUME }}:/go/pkg/mod \
+          -v {{ .GO_MOD_CACHE_VOLUME }}:/go/pkg/mod \
           -w /app \
           golang:{{ .GO_VERSION }} \
           {{ .COMMAND }}
 
   build:
     <<: *go-docker
+    internal: false
     desc: Build the application
+    env:
+      GOOS: "{{OS}}"
+      GOARCH: "{{ARCH}}"
     vars:
-      COMMAND: go build -o bin/{{ .GIT_REPO_NAME }} *.go
+      COMMAND: go build -o bin/{{ .GIT_REPO_NAME }}-{{ .GOOS }}-{{ .GOARCH }} *.go {{ .CLI_ARGS }}
+
+  build-all:
+    desc: Build the application for all platforms
+    vars:
+      ALL_OS: linux darwin windows
+      ALL_ARCH: amd64 arm64
+    cmds:
+      - |
+        for os in {{ .ALL_OS }}; do
+          for arch in {{ .ALL_ARCH }}; do
+            echo "Building binary for $os/$arch..."
+            GOOS=$os GOARCH=$arch task build &
+          done
+        done
+        wait
 
   run:
     <<: *go-docker
+    internal: false
     desc: Run the application
     vars:
       COMMAND: go run *.go
 
   format:
     <<: *go-docker
+    internal: false
     desc: Format the application
     vars:
       COMMAND: go fmt ./...
 
   check-format:
     <<: *go-docker
+    internal: false
     desc: Format the application
     vars:
       COMMAND: bash -c 'if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then exit 1; fi'
@@ -57,14 +82,14 @@ tasks:
   lint:
     desc: Lint the application
     deps:
-      - task: create-go-module-cache-volume
+      - task: create-go-mod-cache-volume
     cmds:
       - |
         docker run \
           --rm \
           -v $(pwd):/app \
           -w /app \
-          -v {{ .GO_MODULE_CACHE_VOLUME }}:/go/pkg/mod \
+          -v {{ .GO_MOD_CACHE_VOLUME }}:/go/pkg/mod \
           golangci/golangci-lint:{{ .GOLANG_CI_LINT_VERSION }} \
           golangci-lint run -v
 

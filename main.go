@@ -44,8 +44,10 @@ func main() {
 	imageExists := doesImageExist(ctx, client, config.image, authStr)
 
 	if imageExists {
+		fmt.Println("Image exists")
 		os.Exit(0)
 	}
 
+	fmt.Println("Image does not exist")
 	os.Exit(1)
 }

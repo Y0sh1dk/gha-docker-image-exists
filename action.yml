@@ -1,0 +1,6 @@
+name: gha-docker-image-exists
+description: Check if a docker image exists
+
+runs:
+  using: node16
+  main: shim.js
