@@ -38,7 +38,7 @@ jobs:
 
       - name: Build Binary
         run: |
-          task build
+          task build-all
 
       - uses: stefanzweifel/git-auto-commit-action@v5
         if: github.event_name == 'pull_request'
