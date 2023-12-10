@@ -2,32 +2,12 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 
-	"github.com/docker/docker/api/types/registry"
 	"github.com/docker/docker/client"
+	githubactions "github.com/sethvargo/go-githubactions"
 )
-
-func getEnvDefault(key, fallback string) string {
-	if value, ok := os.LookupEnv(key); ok {
-		return value
-	}
-	return fallback
-}
-
-func getAuthString(username, password, serverAddress string) (string, error) {
-	authConfig := registry.AuthConfig{
-		Username:      username,
-		Password:      password,
-		ServerAddress: serverAddress,
-	}
-
-	authStr, err := registry.EncodeAuthConfig(authConfig)
-	if err != nil {
-		return "", err
-	}
-	return authStr, nil
-}
 
 func getDockerClient() (*client.Client, error) {
 	return client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
@@ -40,14 +20,14 @@ func doesImageExist(ctx context.Context, client *client.Client, image, authStr s
 
 func main() {
 	ctx := context.Background()
+	action := githubactions.New()
 
-	username := getEnvDefault("DOCKER_USERNAME", "")
-	password := getEnvDefault("DOCKER_PASSWORD", "")
-	serverAddress := getEnvDefault("DOCKER_SERVER_ADDRESS", "https://index.docker.io/v1/")
-	image, exists := os.LookupEnv("DOCKER_IMAGE")
-	if !exists {
-		panic("DOCKER_IMAGE environment variable not set")
+	config, err := NewFromInputs(action)
+	if err != nil {
+		panic(err)
 	}
+
+	fmt.Println(config)
 
 	client, err := getDockerClient()
 	if err != nil {
@@ -55,12 +35,12 @@ func main() {
 	}
 	defer client.Close()
 
-	authStr, err := getAuthString(username, password, serverAddress)
+	authStr, err := config.GetAuthString()
 	if err != nil {
 		panic(err)
 	}
 
-	imageExists := doesImageExist(ctx, client, image, authStr)
+	imageExists := doesImageExist(ctx, client, config.image, authStr)
 
 	if imageExists {
 		os.Exit(0)

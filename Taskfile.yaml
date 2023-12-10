@@ -1,0 +1,68 @@
+version: "3"
+
+vars:
+  GOLANG_CI_LINT_VERSION: v1.55.2
+  GO_VERSION:
+    sh: sed -En 's/^go (.*)$/\1/p' go.mod
+  GO_MODULE_CACHE_VOLUME: go-module-cache
+  GIT_REPO_NAME:
+    sh: basename $(git rev-parse --show-toplevel)
+
+tasks:
+  create-go-module-cache-volume:
+    internal: true
+    silent: true
+    desc: Create the module cache volume
+    cmds:
+      - |
+        docker volume create {{ .GO_MODULE_CACHE_VOLUME }} > /dev/null 2>&1
+
+  _go-docker: &go-docker
+    deps:
+      - task: create-go-module-cache-volume
+    cmds:
+      - |
+        docker run \
+          --rm \
+          -v $(pwd):/app \
+          -v {{ .GO_MODULE_CACHE_VOLUME }}:/go/pkg/mod \
+          -w /app \
+          golang:{{ .GO_VERSION }} \
+          {{ .COMMAND }}
+
+  compile:
+    <<: *go-docker
+    desc: Compile the application
+    vars:
+      COMMAND: go build -o bin/{{ .GIT_REPO_NAME }} *.go
+
+  run:
+    <<: *go-docker
+    desc: Run the application
+    vars:
+      COMMAND: go run *.go
+
+  format:
+    <<: *go-docker
+    desc: Format the application
+    vars:
+      COMMAND: go fmt ./...
+
+  lint:
+    desc: Lint the application
+    deps:
+      - task: create-go-module-cache-volume
+    cmds:
+      - |
+        docker run \
+          --rm \
+          -v $(pwd):/app \
+          -w /app \
+          -v {{ .GO_MODULE_CACHE_VOLUME }}:/go/pkg/mod \
+          golangci/golangci-lint:{{ .GOLANG_CI_LINT_VERSION }} \
+          golangci-lint run -v
+
+  default:
+    silent: true
+    cmds:
+      - task --list
