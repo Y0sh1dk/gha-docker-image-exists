@@ -23,6 +23,7 @@ func (c *Config) GetAuthString() (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	return authStr, nil
 }
 
@@ -38,6 +39,7 @@ func NewFromInputs(action *githubactions.Action) (*Config, error) {
 		serverAddress: serverAddress,
 		image:         image,
 	}
+
 	return &c, nil
 }
 
@@ -45,5 +47,6 @@ func getInputDefault(action *githubactions.Action, key, fallback string) string 
 	if value := action.GetInput(key); value == "" {
 		return value
 	}
+
 	return fallback
 }

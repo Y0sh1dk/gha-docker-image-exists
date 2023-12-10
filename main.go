@@ -15,6 +15,7 @@ func getDockerClient() (*client.Client, error) {
 
 func doesImageExist(ctx context.Context, client *client.Client, image, authStr string) bool {
 	_, err := client.DistributionInspect(ctx, image, authStr)
+
 	return err == nil
 }
 
@@ -45,5 +46,6 @@ func main() {
 	if imageExists {
 		os.Exit(0)
 	}
+
 	os.Exit(1)
 }
