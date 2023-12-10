@@ -60,18 +60,21 @@ tasks:
 
   run:
     <<: *go-docker
+    internal: false
     desc: Run the application
     vars:
       COMMAND: go run *.go
 
   format:
     <<: *go-docker
+    internal: false
     desc: Format the application
     vars:
       COMMAND: go fmt ./...
 
   check-format:
     <<: *go-docker
+    internal: false
     desc: Format the application
     vars:
       COMMAND: bash -c 'if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then exit 1; fi'
