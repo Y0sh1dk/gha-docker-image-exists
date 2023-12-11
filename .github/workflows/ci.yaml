@@ -75,6 +75,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      actions: write
     steps:
       - name: Trigger generated tests
         uses: convictional/trigger-workflow-and-wait@v1.6.1
