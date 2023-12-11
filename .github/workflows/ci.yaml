@@ -45,3 +45,23 @@ jobs:
         with:
           commit_message: Update compiled binaries
           file_pattern: "bin/*"
+
+  test-gen:
+    needs: [lint, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - uses: jason-dour/action-setup-gomplate@v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - run: gomplate --version
+
+      - name: Check SHA
+        run: |
+          echo "${{ github.event.pull_request.head.sha }}"
+          echo "${{ github.ref }}"
