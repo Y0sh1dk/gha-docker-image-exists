@@ -33,6 +33,19 @@ tasks:
           golang:{{ .GO_VERSION }} \
           {{ .COMMAND }}
 
+  _gomplate-docker: &gomplate-docker
+    internal: true
+    cmds:
+      - |
+        docker run \
+          --rm \
+          -e WORKFLOW_NAME={{ .WORKFLOW_NAME }} \
+          -e ACTION_VERSION={{ .ACTION_VERSION }} \
+          -v $(pwd):/app \
+          -w /app \
+          hairyhenderson/gomplate:stable \
+          {{ .COMMAND }}
+
   build:
     <<: *go-docker
     internal: false
@@ -42,6 +55,17 @@ tasks:
       GOARCH: "{{ARCH}}"
     vars:
       COMMAND: go build -o bin/{{ .GIT_REPO_NAME }}-{{ .GOOS }}-{{ .GOARCH }} *.go {{ .CLI_ARGS }}
+
+  gen-tests:
+    <<: *gomplate-docker
+    internal: false
+    desc: Generate test workflows
+    requires:
+      vars: [ACTION_VERSION]
+    vars:
+      WORKFLOW_NAME: "{{ .GIT_REPO_NAME }}"
+      ACTION_VERSION: "{{ .ACTION_VERSION }}"
+      COMMAND: -f .github/workflows/test.yaml.tmpl --left-delim "[[[" --right-delim "]]]" > .github/workflows/test.yaml
 
   build-all:
     desc: Build the application for all platforms

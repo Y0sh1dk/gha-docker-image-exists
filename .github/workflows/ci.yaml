@@ -45,3 +45,44 @@ jobs:
         with:
           commit_message: Update compiled binaries
           file_pattern: "bin/*"
+
+  gen-tests:
+    needs: [lint, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GHA_TOKEN }}
+
+      - name: Install Task
+        uses: arduino/setup-task@v1
+
+      - name: Generate tests
+        run: |
+          ACTION_VERSION=${{ github.head_ref }} task gen-tests
+
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        if: github.event_name == 'pull_request'
+        with:
+          commit_message: "[skip ci] Update tests"
+          file_pattern: ".github/workflows/test.yaml"
+
+  trigger-tests:
+    needs: [gen-tests]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
+    steps:
+      - name: Trigger generated tests
+        uses: convictional/trigger-workflow-and-wait@v1.6.1
+        with:
+          owner: Y0sh1dk
+          repo: gha-docker-image-exists
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow_file_name: test.yml
+          ref: ${{ github.head_ref}}
+          wait_workflow: true

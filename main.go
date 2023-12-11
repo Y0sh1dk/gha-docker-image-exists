@@ -25,29 +25,28 @@ func main() {
 
 	config, err := NewFromInputs(action)
 	if err != nil {
-		panic(err)
+		action.Fatalf("Failed to get inputs: %s", err)
 	}
-
-	fmt.Println(config)
+	action.Debugf(config.String())
 
 	client, err := getDockerClient()
 	if err != nil {
-		panic(err)
+		action.Fatalf("Failed to get docker client: %s", err)
 	}
-	defer client.Close()
 
 	authStr, err := config.GetAuthString()
 	if err != nil {
-		panic(err)
+		action.Fatalf("Failed to get auth string: %s", err)
 	}
 
 	imageExists := doesImageExist(ctx, client, config.image, authStr)
+
+	client.Close()
 
 	if imageExists {
 		fmt.Println("Image exists")
 		os.Exit(0)
 	}
 
-	fmt.Println("Image does not exist")
-	os.Exit(1)
+	action.Fatalf("Image does not exist")
 }
