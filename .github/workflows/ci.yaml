@@ -54,13 +54,15 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GHA_TOKEN }}
 
       - name: Install Task
         uses: arduino/setup-task@v1
 
       - name: Generate tests
         run: |
-          task gen-tests
+          ACTION_VERSION=${{ github.head_ref }} task gen-tests
 
       - uses: stefanzweifel/git-auto-commit-action@v5
         if: github.event_name == 'pull_request'
