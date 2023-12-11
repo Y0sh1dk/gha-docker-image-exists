@@ -79,7 +79,7 @@ jobs:
         with:
           owner: Y0sh1dk
           repo: gha-docker-image-exists
-          github_token: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow_file_name: test.yml
           ref: ${{ github.head_ref}}
           wait_workflow: true
