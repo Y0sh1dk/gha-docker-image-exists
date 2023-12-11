@@ -60,8 +60,10 @@ tasks:
     <<: *gomplate-docker
     internal: false
     desc: Generate test workflows
+    requires:
+      vars: [ACTION_VERSION]
     vars:
-      WORKFLOW_NAME: "{{ default .GIT_REPO_NAME .WORKFLOW_NAME }}"
+      WORKFLOW_NAME: "{{ .GIT_REPO_NAME }}"
       ACTION_VERSION: "{{ .ACTION_VERSION }}"
       COMMAND: -f .github/workflows/test.yaml.tmpl --left-delim "[[[" --right-delim "]]]" > .github/workflows/test.yaml
 
