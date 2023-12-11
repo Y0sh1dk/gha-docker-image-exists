@@ -46,7 +46,7 @@ jobs:
           commit_message: Update compiled binaries
           file_pattern: "bin/*"
 
-  test-gen:
+  gen-tests:
     needs: [lint, build]
     runs-on: ubuntu-latest
     permissions:
@@ -55,13 +55,31 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - uses: jason-dour/action-setup-gomplate@v1.0.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install Task
+        uses: arduino/setup-task@v1
 
-      - run: gomplate --version
-
-      - name: Check SHA
+      - name: Generate tests
         run: |
-          echo "${{ github.event.pull_request.head.sha }}"
-          echo "${{ github.ref }}"
+          task gen-tests
+
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        if: github.event_name == 'pull_request'
+        with:
+          commit_message: Update tests
+          file_pattern: ".github/workflows/test.yaml"
+
+  trigger-tests:
+    needs: [gen-tests]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Trigger generated tests
+        uses: convictional/trigger-workflow-and-wait@v1.6.1
+        with:
+          owner: Y0sh1dk
+          repo: gha-docker-image-exists
+          github_token: ${{ secrets.GITHUB_PERSONAL_ACCESS_TOKEN }}
+          workflow_file_name: test.yml
+          ref: ${{ github.head_ref}}
+          wait_workflow: true

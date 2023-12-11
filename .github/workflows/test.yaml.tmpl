@@ -1,11 +1,7 @@
-name: {{{ .Env.ACTION_NAME }}}
+name: [[[ .Env.WORKFLOW_NAME ]]] Test
 
 on:
   workflow_dispatch:
-    inputs:
-      version:
-        description: "Version of action to run"
-        required: true
 
 jobs:
   success:
@@ -14,7 +10,7 @@ jobs:
       - name: GHA Docker Image Exists
         id: gha-docker-image-exists
         continue-on-error: true
-        uses: Y0sh1dk/gha-docker-image-exists@{{{ .Env.ACTION_VERSION }}}
+        uses: Y0sh1dk/gha-docker-image-exists@[[[ .Env.ACTION_VERSION ]]]
         with:
           image: nginx:latest
 
@@ -32,9 +28,9 @@ jobs:
       - name: GHA Docker Image Exists
         id: gha-docker-image-exists
         continue-on-error: true
-        uses: Y0sh1dk/gha-docker-image-exists@{{{ .Env.ACTION_VERSION }}}
+        uses: Y0sh1dk/gha-docker-image-exists@[[[ .Env.ACTION_VERSION ]]]
         with:
-          image: nginx:foobar
+          image: nginx:invalid-tag
 
       - name: Check output
         run: |
