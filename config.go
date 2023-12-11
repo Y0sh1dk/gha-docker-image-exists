@@ -44,7 +44,7 @@ func NewFromInputs(action *githubactions.Action) (*Config, error) {
 }
 
 func getInputDefault(action *githubactions.Action, key, fallback string) string {
-	if value := action.GetInput(key); value == "" {
+	if value := action.GetInput(key); value != "" {
 		return value
 	}
 
