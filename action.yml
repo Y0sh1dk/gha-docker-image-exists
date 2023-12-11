@@ -1,5 +1,20 @@
 name: gha-docker-image-exists
 description: Check if a docker image exists
+author: Yosiah de Koeyer
+
+inputs:
+  image:
+    description: "The image to check"
+    required: true
+  serverAddress:
+    description: "The server address to check against"
+    required: false
+  username:
+    description: "The username to use for authentication"
+    required: false
+  password:
+    description: "The password to use for authentication"
+    required: false
 
 runs:
   using: node16
