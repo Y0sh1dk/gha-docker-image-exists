@@ -67,12 +67,7 @@ jobs:
       - name: Generate test branch name
         id: generate_branch
         run: |
-          echo "branch=${{ github.head_ref }}/test/$(git rev-parse --short HEAD)/${{ github.run_id }}" >> $GITHUB_ENV
-
-      - name: Create test branch
-        run: |
-          git checkout -b ${{ steps.generate_branch.outputs.branch }}
-          git push -u origin ${{ steps.generate_branch.outputs.branch }}
+          echo "branch=${{ github.head_ref }}/test/$(git rev-parse --short HEAD)/${{ github.run_id }}" >> $GITHUB_OUTPUT
 
       - name: Generate tests
         run: |
@@ -83,6 +78,8 @@ jobs:
         with:
           commit_message: "[skip ci] Update tests"
           file_pattern: ".github/workflows/autogen-test.yaml"
+          branch: ${{ steps.generate_branch.outputs.branch }}
+          create_branch: true
 
       - name: Trigger generated tests
         uses: convictional/trigger-workflow-and-wait@v1.6.1
@@ -96,5 +93,5 @@ jobs:
 
       - name: Delete branch
         run: |
-          echo "Deleting branch ${{ steps.generate_branch.outputs.branch }}"
+          echo "Deleting branch ${{ steps.generate_branch.outputs.branch }}..."
           git push origin --delete ${{ steps.generate_branch.outputs.branch }}
