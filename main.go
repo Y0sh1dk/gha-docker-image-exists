@@ -44,7 +44,7 @@ func main() {
 	client.Close()
 
 	if imageExists {
-		fmt.Println("Image exists")
+		fmt.Printf("Image %s exists\n", config.image)
 		os.Exit(0)
 	}
 
