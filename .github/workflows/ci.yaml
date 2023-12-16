@@ -82,12 +82,12 @@ jobs:
           create_branch: true
 
       - name: Trigger generated tests
-        uses: convictional/trigger-workflow-and-wait@v1.6.1
+        uses: convictional/trigger-workflow-and-wait@v1.6.5
         with:
           owner: Y0sh1dk
           repo: gha-docker-image-exists
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          workflow_file_name: autogen-test.yml
+          workflow_file_name: autogen-test.yaml
           ref: ${{ steps.generate_branch.outputs.branch }}
           wait_workflow: true
 
