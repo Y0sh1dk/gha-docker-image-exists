@@ -65,7 +65,7 @@ tasks:
     vars:
       WORKFLOW_NAME: "{{ .GIT_REPO_NAME }}"
       ACTION_VERSION: "{{ .ACTION_VERSION }}"
-      COMMAND: -f .github/workflows/test.yaml.tmpl --left-delim "[[[" --right-delim "]]]" > .github/workflows/test.yaml
+      COMMAND: -f .github/workflows/test.yaml.tmpl --left-delim "[[[" --right-delim "]]]" > .github/workflows/autogen-test.yaml
 
   build-all:
     desc: Build the application for all platforms
