@@ -7,7 +7,7 @@ jobs:
   success:
     runs-on: ubuntu-latest
     steps:
-      - name: GHA Docker Image Exists
+      - name: [[[ .Env.WORKFLOW_NAME ]]] valid tag
         id: gha-docker-image-exists
         continue-on-error: true
         uses: Y0sh1dk/gha-docker-image-exists@[[[ .Env.ACTION_VERSION ]]]
@@ -25,7 +25,7 @@ jobs:
   fail:
     runs-on: ubuntu-latest
     steps:
-      - name: GHA Docker Image Exists
+      - name: [[[ .Env.WORKFLOW_NAME ]]] invalid tag
         id: gha-docker-image-exists
         continue-on-error: true
         uses: Y0sh1dk/gha-docker-image-exists@[[[ .Env.ACTION_VERSION ]]]

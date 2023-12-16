@@ -12,6 +12,7 @@ on:
 
 jobs:
   lint:
+    name: Lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -29,6 +30,7 @@ jobs:
           task lint
 
   build:
+    name: Build
     needs: [lint]
     runs-on: ubuntu-latest
     permissions:
@@ -51,7 +53,8 @@ jobs:
           file_pattern: "bin/*"
 
   test:
-    needs: [lint]
+    name: Test
+    needs: [lint, build]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -67,13 +70,14 @@ jobs:
       - name: Generate test branch name
         id: generate_branch
         run: |
-          echo "branch=test/${{ github.head_ref }}/$(git rev-parse --short HEAD)/${{ github.run_id }}" >> $GITHUB_OUTPUT
+          echo "branch=test/${{ github.head_ref }}/$(git rev-parse --short HEAD)/${{ github.run_number }}" >> $GITHUB_OUTPUT
 
       - name: Generate tests
         run: |
           ACTION_VERSION=${{ github.head_ref }} task gen-tests
 
-      - uses: stefanzweifel/git-auto-commit-action@v5
+      - name: Commit generated tests
+        uses: stefanzweifel/git-auto-commit-action@v5
         if: github.event_name == 'pull_request'
         with:
           commit_message: "[skip ci] Update tests"
@@ -82,16 +86,18 @@ jobs:
           create_branch: true
 
       - name: Trigger generated tests
-        uses: convictional/trigger-workflow-and-wait@v1.6.1
+        uses: convictional/trigger-workflow-and-wait@v1.6.5
         with:
           owner: Y0sh1dk
           repo: gha-docker-image-exists
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          workflow_file_name: autogen-test.yml
+          github_token: ${{ secrets.GHA_TOKEN }}
+          workflow_file_name: autogen-test.yaml
           ref: ${{ steps.generate_branch.outputs.branch }}
           wait_workflow: true
+          comment_downstream_url: ${{ github.event.pull_request.comments_url }}
 
       - name: Delete branch
+        if: always()
         run: |
           echo "Deleting branch ${{ steps.generate_branch.outputs.branch }}..."
           git push origin --delete ${{ steps.generate_branch.outputs.branch }}
