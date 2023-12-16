@@ -94,6 +94,7 @@ jobs:
           workflow_file_name: autogen-test.yaml
           ref: ${{ steps.generate_branch.outputs.branch }}
           wait_workflow: true
+          comment_downstream_url: ${{ github.event.pull_request.comments_url }}
 
       - name: Delete branch
         if: always()
