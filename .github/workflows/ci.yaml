@@ -28,30 +28,30 @@ jobs:
         run: |
           task lint
 
-  build:
-    needs: [lint]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+  # build:
+  #   needs: [lint]
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: write
+  #   steps:
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v4
 
-      - name: Install Task
-        uses: arduino/setup-task@v1
+  #     - name: Install Task
+  #       uses: arduino/setup-task@v1
 
-      - name: Build Binary
-        run: |
-          task build-all
+  #     - name: Build Binary
+  #       run: |
+  #         task build-all
 
-      - uses: stefanzweifel/git-auto-commit-action@v5
-        if: github.event_name == 'pull_request'
-        with:
-          commit_message: "[skip ci] Update compiled binaries"
-          file_pattern: "bin/*"
+  #     - uses: stefanzweifel/git-auto-commit-action@v5
+  #       if: github.event_name == 'pull_request'
+  #       with:
+  #         commit_message: "[skip ci] Update compiled binaries"
+  #         file_pattern: "bin/*"
 
   test:
-    needs: [lint, build]
+    needs: [lint]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -69,6 +69,11 @@ jobs:
         run: |
           echo "branch=${{ github.head_ref }}/test/$(git rev-parse --short HEAD)/${{ github.run_id }}" >> $GITHUB_ENV
 
+      - name: Create test branch
+        run: |
+          git checkout -b ${{ steps.generate_branch.outputs.branch }}
+          git push -u origin ${{ steps.generate_branch.outputs.branch }}
+
       - name: Generate tests
         run: |
           ACTION_VERSION=${{ github.head_ref }} task gen-tests
@@ -78,8 +83,6 @@ jobs:
         with:
           commit_message: "[skip ci] Update tests"
           file_pattern: ".github/workflows/autogen-test.yaml"
-          branch: ${{ steps.generate_branch.outputs.branch }}
-          create_branch: true
 
       - name: Trigger generated tests
         uses: convictional/trigger-workflow-and-wait@v1.6.1
@@ -94,4 +97,4 @@ jobs:
       - name: Delete branch
         run: |
           echo "Deleting branch ${{ steps.generate_branch.outputs.branch }}"
-          # git push origin --delete ${{ steps.generate_branch.outputs.branch }}
+          git push origin --delete ${{ steps.generate_branch.outputs.branch }}
