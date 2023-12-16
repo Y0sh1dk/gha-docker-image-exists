@@ -67,7 +67,7 @@ jobs:
       - name: Generate test branch name
         id: generate_branch
         run: |
-          echo "branch=${{ github.head_ref }}/test/$(git rev-parse --short HEAD)/${{ github.run_id }}" >> $GITHUB_OUTPUT
+          echo "branch=test/${{ github.head_ref }}/$(git rev-parse --short HEAD)/${{ github.run_id }}" >> $GITHUB_OUTPUT
 
       - name: Generate tests
         run: |
