@@ -12,6 +12,7 @@ on:
 
 jobs:
   lint:
+    name: Lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -29,6 +30,7 @@ jobs:
           task lint
 
   build:
+    name: Build
     needs: [lint]
     runs-on: ubuntu-latest
     permissions:
@@ -51,7 +53,8 @@ jobs:
           file_pattern: "bin/*"
 
   test:
-    needs: [lint]
+    name: Test
+    needs: [lint, build]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -73,7 +76,8 @@ jobs:
         run: |
           ACTION_VERSION=${{ github.head_ref }} task gen-tests
 
-      - uses: stefanzweifel/git-auto-commit-action@v5
+      - name: Commit generated tests
+        uses: stefanzweifel/git-auto-commit-action@v5
         if: github.event_name == 'pull_request'
         with:
           commit_message: "[skip ci] Update tests"
@@ -92,6 +96,7 @@ jobs:
           wait_workflow: true
 
       - name: Delete branch
+        if: always()
         run: |
           echo "Deleting branch ${{ steps.generate_branch.outputs.branch }}..."
           git push origin --delete ${{ steps.generate_branch.outputs.branch }}

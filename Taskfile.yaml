@@ -50,10 +50,15 @@ tasks:
     <<: *go-docker
     internal: false
     desc: Build the application
-    env:
-      GOOS: "{{OS}}"
-      GOARCH: "{{ARCH}}"
+    sources:
+      - "*.go"
+      - "go.mod"
+      - "go.sum"
+    generates:
+      - "bin/{{ .GIT_REPO_NAME }}-{{ .GOOS }}-{{ .GOARCH }}"
     vars:
+      GOOS: "{{ .GOOS | default OS }}"
+      GOARCH: "{{ .GOARCH | default ARCH}}"
       COMMAND: go build -o bin/{{ .GIT_REPO_NAME }}-{{ .GOOS }}-{{ .GOARCH }} *.go {{ .CLI_ARGS }}
 
   gen-tests:
