@@ -28,27 +28,27 @@ jobs:
         run: |
           task lint
 
-  # build:
-  #   needs: [lint]
-  #   runs-on: ubuntu-latest
-  #   permissions:
-  #     contents: write
-  #   steps:
-  #     - name: Checkout Repository
-  #       uses: actions/checkout@v4
+  build:
+    needs: [lint]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-  #     - name: Install Task
-  #       uses: arduino/setup-task@v1
+      - name: Install Task
+        uses: arduino/setup-task@v1
 
-  #     - name: Build Binary
-  #       run: |
-  #         task build-all
+      - name: Build Binary
+        run: |
+          task build-all
 
-  #     - uses: stefanzweifel/git-auto-commit-action@v5
-  #       if: github.event_name == 'pull_request'
-  #       with:
-  #         commit_message: "[skip ci] Update compiled binaries"
-  #         file_pattern: "bin/*"
+      - uses: stefanzweifel/git-auto-commit-action@v5
+        if: github.event_name == 'pull_request'
+        with:
+          commit_message: "[skip ci] Update compiled binaries"
+          file_pattern: "bin/*"
 
   test:
     needs: [lint]

@@ -1,0 +1,41 @@
+name: gha-docker-image-exists Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  success:
+    runs-on: ubuntu-latest
+    steps:
+      - name: GHA Docker Image Exists
+        id: gha-docker-image-exists
+        continue-on-error: true
+        uses: Y0sh1dk/gha-docker-image-exists@feature/ci-testing-action-test
+        with:
+          image: nginx:latest
+
+      - name: Check output
+        run: |
+          if [ ${{ steps.gha-docker-image-exists.outcome == 'success' }} ]; then
+            exit 0
+          else
+            exit 1
+          fi
+
+  fail:
+    runs-on: ubuntu-latest
+    steps:
+      - name: GHA Docker Image Exists
+        id: gha-docker-image-exists
+        continue-on-error: true
+        uses: Y0sh1dk/gha-docker-image-exists@feature/ci-testing-action-test
+        with:
+          image: nginx:invalid-tag
+
+      - name: Check output
+        run: |
+          if [ ${{ steps.gha-docker-image-exists.outcome == 'failure' }} ]; then
+            exit 0
+          else
+            exit 1
+          fi
