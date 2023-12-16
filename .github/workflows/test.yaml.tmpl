@@ -7,7 +7,7 @@ jobs:
   valid-tag:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: [[[ .Env.WORKFLOW_NAME ]]] valid tag
@@ -28,7 +28,7 @@ jobs:
   invalid-tag:
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - name: [[[ .Env.WORKFLOW_NAME ]]] invalid tag

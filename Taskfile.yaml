@@ -75,7 +75,7 @@ tasks:
   build-all:
     desc: Build the application for all platforms
     vars:
-      ALL_OS: linux darwin windows
+      ALL_OS: linux darwin
       ALL_ARCH: amd64 arm64
     cmds:
       - |
