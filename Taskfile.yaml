@@ -138,6 +138,26 @@ tasks:
           golangci/golangci-lint:{{ .GOLANG_CI_LINT_VERSION }} \
           golangci-lint run -v
 
+  local-registry-up:
+    desc: Start local registry
+    env:
+      REGISTRY_PORT: "{{ .REGISTRY_PORT | default 5000 }}"
+      REGISTRY_USERNAME: '{{ .REGISTRY_USERNAME | default "admin" }}'
+      REGISTRY_PASSWORD: '{{ .REGISTRY_PASSWORD | default "password" }}'
+    cmds:
+      - |
+        docker-compose -f test/docker-compose.yml up -d
+
+  local-registry-down:
+    desc: Step local registry
+    env:
+      REGISTRY_PORT: "{{ .REGISTRY_PORT | default 5000 }}"
+      REGISTRY_USERNAME: "{{ .REGISTRY_USERNAME | default admin }}"
+      REGISTRY_PASSWORD: "{{ .REGISTRY_PASSWORD | default password }}"
+    cmds:
+      - |
+        docker-compose -f test/docker-compose.yml down -v
+
   default:
     silent: true
     cmds:

@@ -50,7 +50,7 @@ jobs:
         if: github.event_name == 'pull_request'
         with:
           commit_message: "[skip ci] Update compiled binaries"
-          file_pattern: "bin/*"
+          file_pattern: "bin/* .task/checksum/build"
 
   test:
     name: Test
