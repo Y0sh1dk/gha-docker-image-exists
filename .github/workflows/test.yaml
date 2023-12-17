@@ -8,7 +8,7 @@ env:
   REGISTRY_PASSWORD: "test-registry-password"
 
 jobs:
-  success-no-auth:
+  valid-image-no-auth:
     runs-on: ubuntu-latest
     steps:
       - name: GHA Docker Image Exists
@@ -24,7 +24,7 @@ jobs:
           else
             exit 1
           fi
-  fail-no-auth:
+  invalid-image-no-auth:
     runs-on: ubuntu-latest
     steps:
       - name: GHA Docker Image Exists
@@ -40,7 +40,7 @@ jobs:
           else
             exit 1
           fi
-  success-auth:
+  valid-image-auth:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -70,7 +70,7 @@ jobs:
           else
             exit 1
           fi
-  fail-auth:
+  invalid-image-auth:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
