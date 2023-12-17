@@ -57,6 +57,7 @@ tasks:
           -e WORKFLOW_NAME={{ .WORKFLOW_NAME }} \
           -e ACTION_VERSION={{ .ACTION_VERSION }} \
           -v $(pwd):/app \
+          --user="root" \
           -w /app \
           mikefarah/yq:latest \
           {{ .COMMAND }}
