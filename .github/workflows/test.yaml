@@ -35,7 +35,7 @@ jobs:
           image: nginx:invalid-tag
       - name: Check output
         run: |
-          if [ ${{ steps.gha-docker-image-exists.outcome == 'failure' }} ]; then
+          if ${{ steps.gha-docker-image-exists.outcome == 'failure' }}; then
             exit 0
           else
             exit 1
@@ -65,7 +65,7 @@ jobs:
 
       - name: Check output
         run: |
-          if [ ${{ steps.gha-docker-image-exists.outcome == 'success' }} ]; then
+          if ${{ steps.gha-docker-image-exists.outcome == 'success' }}; then
             exit 0
           else
             exit 1
@@ -95,7 +95,7 @@ jobs:
 
       - name: Check output
         run: |
-          if [ ${{ steps.gha-docker-image-exists.outcome == 'failure' }} ]; then
+          if ${{ steps.gha-docker-image-exists.outcome == 'failure' }}; then
             exit 0
           else
             exit 1
