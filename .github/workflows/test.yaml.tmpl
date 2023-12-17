@@ -1,22 +1,16 @@
-name: [[[ .Env.WORKFLOW_NAME ]]] Test
-
+name: gha-docker-image-exists Test
 on:
   workflow_dispatch:
-
 jobs:
-  valid-tag:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
+  success:
+    runs-on: ubuntu-latest
     steps:
-      - name: [[[ .Env.WORKFLOW_NAME ]]] valid tag
+      - name: GHA Docker Image Exists
         id: gha-docker-image-exists
         continue-on-error: true
-        uses: Y0sh1dk/gha-docker-image-exists@[[[ .Env.ACTION_VERSION ]]]
+        uses: Y0sh1dk/gha-docker-image-exists@main
         with:
           image: nginx:latest
-
       - name: Check output
         run: |
           if [ ${{ steps.gha-docker-image-exists.outcome == 'success' }} ]; then
@@ -24,20 +18,15 @@ jobs:
           else
             exit 1
           fi
-
-  invalid-tag:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
+  fail:
+    runs-on: ubuntu-latest
     steps:
-      - name: [[[ .Env.WORKFLOW_NAME ]]] invalid tag
+      - name: GHA Docker Image Exists
         id: gha-docker-image-exists
         continue-on-error: true
-        uses: Y0sh1dk/gha-docker-image-exists@[[[ .Env.ACTION_VERSION ]]]
+        uses: Y0sh1dk/gha-docker-image-exists@main
         with:
           image: nginx:invalid-tag
-
       - name: Check output
         run: |
           if [ ${{ steps.gha-docker-image-exists.outcome == 'failure' }} ]; then
