@@ -7,6 +7,8 @@ vars:
   GO_MOD_CACHE_VOLUME: go-module-cache
   GIT_REPO_NAME:
     sh: basename $(git rev-parse --show-toplevel)
+  GIT_REPO_OWNER: Y0sh1dk
+  GIT_REPO_FULL: "{{ .GIT_REPO_OWNER }}/{{ .GIT_REPO_NAME }}"
 
 tasks:
   create-go-mod-cache-volume:
@@ -46,6 +48,19 @@ tasks:
           hairyhenderson/gomplate:stable \
           {{ .COMMAND }}
 
+  _yq-docker: &yq-docker
+    internal: true
+    cmds:
+      - |
+        docker run \
+          --rm \
+          -e WORKFLOW_NAME={{ .WORKFLOW_NAME }} \
+          -e ACTION_VERSION={{ .ACTION_VERSION }} \
+          -v $(pwd):/app \
+          -w /app \
+          mikefarah/yq:latest \
+          {{ .COMMAND }}
+
   build:
     <<: *go-docker
     internal: false
@@ -62,15 +77,15 @@ tasks:
       COMMAND: go build -ldflags="-w -s" -o bin/{{ .GIT_REPO_NAME }}-{{ .GOOS }}-{{ .GOARCH }} *.go {{ .CLI_ARGS }}
 
   gen-tests:
-    <<: *gomplate-docker
+    <<: *yq-docker
     internal: false
     desc: Generate test workflows
     requires:
       vars: [ACTION_VERSION]
     vars:
-      WORKFLOW_NAME: "{{ .GIT_REPO_NAME }}"
-      ACTION_VERSION: "{{ .ACTION_VERSION }}"
-      COMMAND: -f .github/workflows/test.yaml.tmpl --left-delim "[[[" --right-delim "]]]" > .github/workflows/autogen-test.yaml
+      ACTION_VERSION: "{{ .GIT_REPO_FULL}}@{{ .ACTION_VERSION }}"
+      COMMAND: |
+        -i '.jobs.[].steps[] |= (select(has("uses") and .uses == "{{ .GIT_REPO_FULL }}@*") | .uses = env(ACTION_VERSION))' .github/workflows/test.yaml
 
   build-all:
     desc: Build the application for all platforms
