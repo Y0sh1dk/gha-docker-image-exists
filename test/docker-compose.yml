@@ -1,0 +1,25 @@
+version: "3"
+
+services:
+  registry:
+    image: registry:2
+    ports:
+      - "${REGISTRY_PORT?}:5000"
+    environment:
+      REGISTRY_AUTH: htpasswd
+      REGISTRY_AUTH_HTPASSWD_PATH: /httpasswd_storage/htpasswd
+      REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+    volumes:
+      - auth-volume:/httpasswd_storage
+    depends_on:
+      htpasswd-generator:
+        condition: service_completed_successfully
+
+  htpasswd-generator:
+    image: httpd:2.4-alpine
+    command: sh -c "htpasswd -Bbn ${REGISTRY_USERNAME?} ${REGISTRY_PASSWORD?} > /httpasswd_storage/htpasswd && cat /httpasswd_storage/htpasswd"
+    volumes:
+      - auth-volume:/httpasswd_storage
+
+volumes:
+  auth-volume:

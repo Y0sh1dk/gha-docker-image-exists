@@ -1,8 +1,14 @@
 name: gha-docker-image-exists Test
 on:
   workflow_dispatch:
+
+env:
+  REGISTRY_PORT: 5000
+  REGISTRY_USERNAME: "test-registry-username"
+  REGISTRY_PASSWORD: "test-registry-password"
+
 jobs:
-  success:
+  success-no-auth:
     runs-on: ubuntu-latest
     steps:
       - name: GHA Docker Image Exists
@@ -18,7 +24,7 @@ jobs:
           else
             exit 1
           fi
-  fail:
+  fail-no-auth:
     runs-on: ubuntu-latest
     steps:
       - name: GHA Docker Image Exists
@@ -27,6 +33,66 @@ jobs:
         uses: Y0sh1dk/gha-docker-image-exists@main
         with:
           image: nginx:invalid-tag
+      - name: Check output
+        run: |
+          if [ ${{ steps.gha-docker-image-exists.outcome == 'failure' }} ]; then
+            exit 0
+          else
+            exit 1
+          fi
+  success-auth:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Task
+        uses: arduino/setup-task@v1
+
+      - name: Setup local registry
+        run: |
+          task local-registry-up
+
+      - name: GHA Docker Image Exists
+        id: gha-docker-image-exists
+        continue-on-error: true
+        uses: Y0sh1dk/gha-docker-image-exists@main
+        with:
+          image: nginx:latest
+          username: ${{ env.REGISTRY_USERNAME }}
+          password: ${{ env.REGISTRY_PASSWORD }}
+          serverAddress: localhost:${{ env.REGISTRY_PORT }}
+
+      - name: Check output
+        run: |
+          if [ ${{ steps.gha-docker-image-exists.outcome == 'success' }} ]; then
+            exit 0
+          else
+            exit 1
+          fi
+  fail-auth:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Task
+        uses: arduino/setup-task@v1
+
+      - name: Setup local registry
+        run: |
+          task local-registry-up
+
+      - name: GHA Docker Image Exists
+        id: gha-docker-image-exists
+        continue-on-error: true
+        uses: Y0sh1dk/gha-docker-image-exists@main
+        with:
+          image: nginx:invalid-tag
+          username: ${{ env.REGISTRY_USERNAME }}
+          password: ${{ env.REGISTRY_PASSWORD }}
+          serverAddress: localhost:${{ env.REGISTRY_PORT }}
+
       - name: Check output
         run: |
           if [ ${{ steps.gha-docker-image-exists.outcome == 'failure' }} ]; then
