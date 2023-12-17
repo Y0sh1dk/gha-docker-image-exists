@@ -12,12 +12,12 @@ function chooseBinary() {
   if (platform === 'linux' && arch === 'arm64') {
     return `gha-docker-image-exists-linux-arm64`
   }
-  if (platform === 'windows' && arch === 'x64') {
-    return `gha-docker-image-exists-windows-amd64`
-  }
-  if (platform === 'windows' && arch === 'arm64') {
-    return `gha-docker-image-exists-windows-arm64`
-  }
+  // if (platform === 'win32' && arch === 'x64') {
+  //   return `gha-docker-image-exists-windows-amd64`
+  // }
+  // if (platform === 'win32' && arch === 'arm64') {
+  //   return `gha-docker-image-exists-windows-arm64`
+  // }
   if (platform === 'darwin' && arch === 'x64') {
     return `gha-docker-image-exists-darwin-amd64`
   }
